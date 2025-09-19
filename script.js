@@ -1,0 +1,523 @@
+// Mobile Navigation Toggle
+const hamburger = document.querySelector('.hamburger');
+const navMenu = document.querySelector('.nav-menu');
+
+hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    navMenu.classList.toggle('active');
+});
+
+// Close mobile menu when clicking on a link
+document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
+    hamburger.classList.remove('active');
+    navMenu.classList.remove('active');
+}));
+
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Demo Tab Functionality
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const targetTab = btn.getAttribute('data-tab');
+        
+        // Remove active class from all buttons and contents
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding content
+        btn.classList.add('active');
+        document.getElementById(targetTab).classList.add('active');
+    });
+});
+
+// Demo Search Functionality
+const searchBtn = document.getElementById('searchBtn');
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+searchBtn.addEventListener('click', performSearch);
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// Add real-time autocomplete
+let autocompleteTimeout;
+searchInput.addEventListener('input', (e) => {
+    const term = e.target.value.trim();
+    
+    // Clear previous timeout
+    clearTimeout(autocompleteTimeout);
+    
+    if (term.length >= 2) {
+        // Debounce the autocomplete call
+        autocompleteTimeout = setTimeout(() => {
+            performAutocomplete(term);
+        }, 300);
+    } else {
+        // Clear results if term is too short
+        searchResults.innerHTML = `
+            <div class="demo-placeholder">
+                <i class="fas fa-search"></i>
+                <p>Enter a search term to see results</p>
+            </div>
+        `;
+    }
+});
+
+async function performAutocomplete(term) {
+    const system = document.getElementById('systemFilter').value;
+    
+    try {
+        const params = new URLSearchParams({
+            term: term,
+            limit: '10'  // Fewer results for autocomplete
+        });
+        
+        if (system) {
+            params.append('system', system);
+        }
+        
+        const response = await fetch(`https://sih-2025-xi-one.vercel.app/autocomplete/?${params}`);
+        const data = await response.json();
+        
+        displayAutocompleteResults(data, term);
+    } catch (error) {
+        console.error('Autocomplete failed:', error);
+    }
+}
+
+async function performSearch() {
+    const term = searchInput.value.trim();
+    const system = document.getElementById('systemFilter').value;
+    
+    if (!term) {
+        showSearchError('Please enter a search term');
+        return;
+    }
+    
+    showSearchLoading();
+    
+    try {
+        const params = new URLSearchParams({
+            term: term,
+            limit: '20'
+        });
+        
+        if (system) {
+            params.append('system', system);
+        }
+        
+        const response = await fetch(`https://sih-2025-xi-one.vercel.app/autocomplete/?${params}`);
+        const data = await response.json();
+        
+        displaySearchResults(data);
+    } catch (error) {
+        showSearchError(`Search failed: ${error.message}`);
+    }
+}
+
+function showSearchLoading() {
+    searchResults.innerHTML = `
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Searching...</p>
+        </div>
+    `;
+}
+
+function showSearchError(message) {
+    searchResults.innerHTML = `
+        <div class="error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>${message}</p>
+        </div>
+    `;
+}
+
+function displayAutocompleteResults(data, searchTerm) {
+    if (data.concepts && data.concepts.length > 0) {
+        const resultsHtml = data.concepts.map(concept => `
+            <div class="autocomplete-item" onclick="selectAutocompleteItem('${concept.code}', '${concept.display}')">
+                <div class="autocomplete-code">${concept.code}</div>
+                <div class="autocomplete-display">${concept.display}</div>
+                <div class="autocomplete-system">${concept.system}</div>
+            </div>
+        `).join('');
+        
+        searchResults.innerHTML = `
+            <div class="autocomplete-results">
+                <div class="autocomplete-header">
+                    <span>Suggestions for "${searchTerm}"</span>
+                </div>
+                <div class="autocomplete-list">
+                    ${resultsHtml}
+                </div>
+            </div>
+        `;
+    } else {
+        searchResults.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <p>No suggestions found for "${searchTerm}"</p>
+            </div>
+        `;
+    }
+}
+
+function selectAutocompleteItem(code, display) {
+    searchInput.value = display;
+    searchResults.innerHTML = `
+        <div class="demo-placeholder">
+            <i class="fas fa-search"></i>
+            <p>Enter a search term to see results</p>
+        </div>
+    `;
+    // Trigger search with the selected item
+    performSearch();
+}
+
+function displaySearchResults(data) {
+    if (data.concepts && data.concepts.length > 0) {
+        const resultsHtml = data.concepts.map(concept => `
+            <div class="search-result">
+                <div class="result-header">
+                    <h4>${concept.code}</h4>
+                    <span class="result-system">${concept.system}</span>
+                </div>
+                <div class="result-content">
+                    <h5>${concept.display}</h5>
+                    ${concept.synonyms ? `<p class="synonyms">Synonyms: ${concept.synonyms.join(', ')}</p>` : ''}
+                </div>
+            </div>
+        `).join('');
+        
+        searchResults.innerHTML = `
+            <div class="search-results-header">
+                <h4>Found ${data.concepts.length} concepts</h4>
+            </div>
+            <div class="search-results-list">
+                ${resultsHtml}
+            </div>
+        `;
+    } else {
+        searchResults.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <p>No results found for "${searchInput.value}"</p>
+            </div>
+        `;
+    }
+}
+
+// Demo Translation Functionality
+const translateBtn = document.getElementById('translateBtn');
+const namasteCodeInput = document.getElementById('namasteCode');
+const translationResults = document.getElementById('translationResults');
+
+translateBtn.addEventListener('click', performTranslation);
+namasteCodeInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        performTranslation();
+    }
+});
+
+async function performTranslation() {
+    const code = namasteCodeInput.value.trim();
+    
+    if (!code) {
+        showTranslationError('Please enter a NAMASTE code');
+        return;
+    }
+    
+    showTranslationLoading();
+    
+    try {
+        const response = await fetch('https://sih-2025-xi-one.vercel.app/translate/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                source_code: code,
+                source_system: 'NAMASTE-Ayurveda',
+                target_system: 'ICD-11'
+            })
+        });
+        
+        const data = await response.json();
+        displayTranslationResults(data);
+    } catch (error) {
+        showTranslationError(`Translation failed: ${error.message}`);
+    }
+}
+
+function showTranslationLoading() {
+    translationResults.innerHTML = `
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Translating...</p>
+        </div>
+    `;
+}
+
+function showTranslationError(message) {
+    translationResults.innerHTML = `
+        <div class="error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>${message}</p>
+        </div>
+    `;
+}
+
+function displayTranslationResults(data) {
+    if (data.mappings && data.mappings.length > 0) {
+        const resultsHtml = data.mappings.map(mapping => `
+            <div class="translation-result">
+                <div class="mapping-header">
+                    <span class="target-code">${mapping.target_code || 'N/A'}</span>
+                    <span class="confidence">${Math.round(mapping.confidence * 100)}% confidence</span>
+                </div>
+                <div class="mapping-content">
+                    <p class="target-display">${mapping.target_display || 'ICD-11:'}</p>
+                    <p class="equivalence">Equivalence: ${mapping.equivalence}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        translationResults.innerHTML = `
+            <div class="translation-results-header">
+                <h4>Translation Results</h4>
+            </div>
+            <div class="translation-results-list">
+                ${resultsHtml}
+            </div>
+        `;
+    } else {
+        translationResults.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-exchange-alt"></i>
+                <p>No translations found for "${namasteCodeInput.value}"</p>
+            </div>
+        `;
+    }
+}
+
+// File Upload Functionality
+const csvUploadBtn = document.getElementById('uploadCsvBtn');
+const bundleUploadBtn = document.getElementById('uploadBundleBtn');
+const uploadResults = document.getElementById('uploadResults');
+
+csvUploadBtn.addEventListener('click', () => uploadFile('csv'));
+bundleUploadBtn.addEventListener('click', () => uploadFile('bundle'));
+
+function uploadFile(type) {
+    const fileInput = type === 'csv' ? document.getElementById('csvUpload') : document.getElementById('bundleUpload');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showUploadError('Please select a file to upload');
+        return;
+    }
+    
+    showUploadLoading();
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const endpoint = type === 'csv' ? 'https://sih-2025-xi-one.vercel.app/ingest/namaste' : 'https://sih-2025-xi-one.vercel.app/bundle/upload';
+    
+    fetch(endpoint, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        displayUploadResults(data, type);
+    })
+    .catch(error => {
+        showUploadError(`Upload failed: ${error.message}`);
+    });
+}
+
+function showUploadLoading() {
+    uploadResults.innerHTML = `
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Uploading and processing...</p>
+        </div>
+    `;
+}
+
+function showUploadError(message) {
+    uploadResults.innerHTML = `
+        <div class="error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>${message}</p>
+        </div>
+    `;
+}
+
+function displayUploadResults(data, type) {
+    uploadResults.innerHTML = `
+        <div class="upload-success">
+            <i class="fas fa-check-circle"></i>
+            <h4>Upload Successful!</h4>
+            <p>${type.toUpperCase()} file processed successfully</p>
+            ${data.upload_id ? `<p>Upload ID: ${data.upload_id}</p>` : ''}
+        </div>
+    `;
+}
+
+// FAQ Accordion Functionality
+const faqItems = document.querySelectorAll('.faq-item');
+
+faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    
+    question.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+        
+        // Close all FAQ items
+        faqItems.forEach(faq => faq.classList.remove('active'));
+        
+        // Open clicked item if it wasn't active
+        if (!isActive) {
+            item.classList.add('active');
+        }
+    });
+});
+
+// Contact Form Functionality
+const contactForm = document.getElementById('contactForm');
+
+contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(contactForm);
+    const data = Object.fromEntries(formData);
+    
+    // Simulate form submission
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitBtn.disabled = true;
+    
+    setTimeout(() => {
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Message Sent!';
+        submitBtn.style.background = 'var(--accent-color)';
+        
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            submitBtn.style.background = '';
+            contactForm.reset();
+        }, 2000);
+    }, 1500);
+});
+
+// Scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('fade-in-up');
+        }
+    });
+}, observerOptions);
+
+// Observe elements for animation
+document.querySelectorAll('.problem-card, .feature-card, .team-member, .value-card').forEach(el => {
+    observer.observe(el);
+});
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 100) {
+        navbar.style.background = 'rgba(10, 10, 10, 0.98)';
+    } else {
+        navbar.style.background = 'rgba(10, 10, 10, 0.95)';
+    }
+});
+
+// Loading states for demo
+function showLoading(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = `
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading...</p>
+            </div>
+        `;
+    }
+}
+
+function showError(elementId, message) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = `
+            <div class="error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>${message}</p>
+            </div>
+        `;
+    }
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+    // Add fade-in animation to hero content
+    const heroContent = document.querySelector('.hero-content');
+    if (heroContent) {
+        heroContent.classList.add('fade-in-up');
+    }
+    
+    // Initialize tooltips if any
+    const tooltips = document.querySelectorAll('[data-tooltip]');
+    tooltips.forEach(tooltip => {
+        tooltip.addEventListener('mouseenter', showTooltip);
+        tooltip.addEventListener('mouseleave', hideTooltip);
+    });
+});
+
+// Tooltip functionality
+function showTooltip(e) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = e.target.getAttribute('data-tooltip');
+    document.body.appendChild(tooltip);
+    
+    const rect = e.target.getBoundingClientRect();
+    tooltip.style.left = rect.left + rect.width / 2 - tooltip.offsetWidth / 2 + 'px';
+    tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+}
+
+function hideTooltip() {
+    const tooltip = document.querySelector('.tooltip');
+    if (tooltip) {
+        tooltip.remove();
+    }
+}
