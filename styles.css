@@ -1591,6 +1591,248 @@ body {
     font-size: 0.875rem;
 }
 
+/* NLP Diagnosis Styles */
+.nlp-demo {
+    margin-top: 2rem;
+}
+
+.nlp-form {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.nlp-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.nlp-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.nlp-form textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.3s ease;
+}
+
+.nlp-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.nlp-form select {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.nlp-form select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.diagnosis-results {
+    margin-top: 2rem;
+}
+
+.diagnosis-analysis {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.analysis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.analysis-header h4 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.confidence-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-tertiary);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 2px solid var(--primary-color);
+}
+
+.confidence-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.confidence-value {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.analysis-details {
+    margin-bottom: 2rem;
+}
+
+.detail-item {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.detail-item strong {
+    color: var(--primary-color);
+}
+
+.matches-section {
+    margin-bottom: 2rem;
+}
+
+.matches-section h5 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.match-card {
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.match-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.match-card.ayush {
+    border-color: #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.1));
+}
+
+.match-card.biomedical {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1));
+}
+
+.match-code {
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.match-display {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.match-confidence {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.dual-coding-section {
+    margin-bottom: 2rem;
+}
+
+.dual-coding-section h5 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.code-preview {
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.code-preview pre {
+    margin: 0;
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.code-preview code {
+    color: var(--text-primary);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.loading-state, .error-state {
+    text-align: center;
+    padding: 3rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.loading-state i {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.error-state i {
+    font-size: 2rem;
+    color: #ef4444;
+    margin-bottom: 1rem;
+}
+
 /* Autocomplete Styles */
 .autocomplete-results {
     position: relative;

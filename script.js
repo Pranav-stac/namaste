@@ -521,3 +521,164 @@ function hideTooltip() {
         tooltip.remove();
     }
 }
+
+// NLP Diagnosis functionality
+async function processDiagnosis() {
+    const diagnosisText = document.getElementById('diagnosisText').value.trim();
+    const inputLanguage = document.getElementById('inputLanguage').value;
+    const resultsDiv = document.getElementById('diagnosisResults');
+    
+    if (!diagnosisText) {
+        showDiagnosisError('Please enter a diagnosis text');
+        return;
+    }
+    
+    showDiagnosisLoading();
+    
+    try {
+        const response = await fetch('https://sih-2025-xi-one.vercel.app/nlp/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                diagnosis_text: diagnosisText,
+                input_language: inputLanguage,
+                doctor_id: 'demo-doctor'
+            })
+        });
+        
+        const data = await response.json();
+        displayDiagnosisResults(data);
+    } catch (error) {
+        showDiagnosisError(`Diagnosis processing failed: ${error.message}`);
+    }
+}
+
+function showDiagnosisLoading() {
+    const resultsDiv = document.getElementById('diagnosisResults');
+    resultsDiv.innerHTML = `
+        <div class="loading-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>AI is processing your diagnosis...</p>
+        </div>
+    `;
+}
+
+function showDiagnosisError(message) {
+    const resultsDiv = document.getElementById('diagnosisResults');
+    resultsDiv.innerHTML = `
+        <div class="error-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>${message}</p>
+        </div>
+    `;
+}
+
+function displayDiagnosisResults(data) {
+    const resultsDiv = document.getElementById('diagnosisResults');
+    
+    if (data.error) {
+        showDiagnosisError(data.error);
+        return;
+    }
+    
+    const ayushMatches = data.ayush_matches || [];
+    const biomedicalMatches = data.biomedical_matches || [];
+    const confidenceScores = data.confidence_scores || {};
+    
+    let html = `
+        <div class="diagnosis-analysis">
+            <div class="analysis-header">
+                <h4><i class="fas fa-brain"></i> AI Analysis Results</h4>
+                <div class="confidence-badge">
+                    <span class="confidence-label">Overall Confidence:</span>
+                    <span class="confidence-value">${Math.round(confidenceScores.overall_confidence * 100)}%</span>
+                </div>
+            </div>
+            
+            <div class="analysis-details">
+                <div class="detail-item">
+                    <strong>Original Text:</strong> ${data.original_text}
+                </div>
+                <div class="detail-item">
+                    <strong>Processed Text:</strong> ${data.processed_text}
+                </div>
+                <div class="detail-item">
+                    <strong>Input Language:</strong> ${data.input_language}
+                </div>
+                <div class="detail-item">
+                    <strong>Medical Terms:</strong> ${data.medical_terms ? data.medical_terms.join(', ') : 'None detected'}
+                </div>
+            </div>
+    `;
+    
+    if (ayushMatches.length > 0) {
+        html += `
+            <div class="matches-section">
+                <h5><i class="fas fa-leaf"></i> AYUSH (Traditional Medicine) Matches</h5>
+                <div class="matches-grid">
+                    ${ayushMatches.map(match => `
+                        <div class="match-card ayush">
+                            <div class="match-code">${match.namaste_code || 'N/A'}</div>
+                            <div class="match-display">${match.display || 'N/A'}</div>
+                            <div class="match-confidence">${Math.round(match.confidence * 100)}% confidence</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    if (biomedicalMatches.length > 0) {
+        html += `
+            <div class="matches-section">
+                <h5><i class="fas fa-stethoscope"></i> Biomedical (ICD-11) Matches</h5>
+                <div class="matches-grid">
+                    ${biomedicalMatches.map(match => `
+                        <div class="match-card biomedical">
+                            <div class="match-code">${match.icd_code || 'N/A'}</div>
+                            <div class="match-display">${match.display || 'N/A'}</div>
+                            <div class="match-confidence">${Math.round(match.confidence * 100)}% confidence</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    if (data.dual_coding && data.dual_coding.fhir_bundle) {
+        html += `
+            <div class="dual-coding-section">
+                <h5><i class="fas fa-code"></i> Dual Coding (FHIR R4 Bundle)</h5>
+                <div class="code-preview">
+                    <pre><code>${JSON.stringify(data.dual_coding.fhir_bundle, null, 2)}</code></pre>
+                </div>
+            </div>
+        `;
+    }
+    
+    html += `
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="confirmDiagnosis('${data.diagnosis_id}')">
+                    <i class="fas fa-check"></i> Confirm Codes
+                </button>
+                <button class="btn btn-outline" onclick="editDiagnosis('${data.diagnosis_id}')">
+                    <i class="fas fa-edit"></i> Edit Codes
+                </button>
+            </div>
+        </div>
+    `;
+    
+    resultsDiv.innerHTML = html;
+}
+
+function confirmDiagnosis(diagnosisId) {
+    // In a real implementation, this would send confirmation to the backend
+    alert('Diagnosis codes confirmed! (This would save to the EHR system)');
+}
+
+function editDiagnosis(diagnosisId) {
+    // In a real implementation, this would open an editing interface
+    alert('Opening diagnosis editor... (This would allow doctors to modify codes)');
+}
