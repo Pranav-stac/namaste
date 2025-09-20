@@ -1591,6 +1591,192 @@ body {
     font-size: 0.875rem;
 }
 
+/* Vision Analysis Styles */
+.vision-demo {
+    margin-top: 2rem;
+}
+
+.vision-upload {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.upload-area {
+    border: 3px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--bg-primary);
+}
+
+.upload-area:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-tertiary);
+}
+
+.upload-area.drag-over {
+    border-color: var(--primary-color);
+    background: var(--bg-tertiary);
+    transform: scale(1.02);
+}
+
+.upload-content i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.upload-content h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.upload-content p {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.supported-formats {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.image-options {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    margin-top: 1.5rem;
+}
+
+.image-options .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.image-options .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.image-options select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.image-options select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.image-preview {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.image-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.vision-results {
+    margin-top: 2rem;
+}
+
+.vision-analysis {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.findings-section, .abnormalities-section {
+    margin-bottom: 2rem;
+}
+
+.findings-section h5, .abnormalities-section h5 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.findings-list, .abnormalities-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.findings-list li, .abnormalities-list li {
+    background: var(--bg-primary);
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    color: var(--text-primary);
+}
+
+.abnormalities-list li {
+    border-left-color: #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.1));
+}
+
+.fhir-section {
+    margin-bottom: 2rem;
+}
+
+.fhir-section h5 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.code-preview {
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.code-preview pre {
+    margin: 0;
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.code-preview code {
+    color: var(--text-primary);
+}
+
 /* NLP Diagnosis Styles */
 .nlp-demo {
     margin-top: 2rem;

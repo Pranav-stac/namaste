@@ -50,16 +50,21 @@ const searchBtn = document.getElementById('searchBtn');
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
 
-searchBtn.addEventListener('click', performSearch);
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        performSearch();
-    }
-});
+if (searchBtn) {
+    searchBtn.addEventListener('click', performSearch);
+}
+if (searchInput) {
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+}
 
 // Add real-time autocomplete
 let autocompleteTimeout;
-searchInput.addEventListener('input', (e) => {
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
     const term = e.target.value.trim();
     
     // Clear previous timeout
@@ -79,7 +84,8 @@ searchInput.addEventListener('input', (e) => {
             </div>
         `;
     }
-});
+    });
+}
 
 async function performAutocomplete(term) {
     const system = document.getElementById('systemFilter').value;
@@ -231,12 +237,16 @@ const translateBtn = document.getElementById('translateBtn');
 const namasteCodeInput = document.getElementById('namasteCode');
 const translationResults = document.getElementById('translationResults');
 
-translateBtn.addEventListener('click', performTranslation);
-namasteCodeInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        performTranslation();
-    }
-});
+if (translateBtn) {
+    translateBtn.addEventListener('click', performTranslation);
+}
+if (namasteCodeInput) {
+    namasteCodeInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performTranslation();
+        }
+    });
+}
 
 async function performTranslation() {
     const code = namasteCodeInput.value.trim();
@@ -324,8 +334,12 @@ const csvUploadBtn = document.getElementById('uploadCsvBtn');
 const bundleUploadBtn = document.getElementById('uploadBundleBtn');
 const uploadResults = document.getElementById('uploadResults');
 
-csvUploadBtn.addEventListener('click', () => uploadFile('csv'));
-bundleUploadBtn.addEventListener('click', () => uploadFile('bundle'));
+if (csvUploadBtn) {
+    csvUploadBtn.addEventListener('click', () => uploadFile('csv'));
+}
+if (bundleUploadBtn) {
+    bundleUploadBtn.addEventListener('click', () => uploadFile('bundle'));
+}
 
 function uploadFile(type) {
     const fileInput = type === 'csv' ? document.getElementById('csvUpload') : document.getElementById('bundleUpload');
@@ -407,7 +421,8 @@ faqItems.forEach(item => {
 // Contact Form Functionality
 const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', (e) => {
+if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
     const formData = new FormData(contactForm);
@@ -431,7 +446,8 @@ contactForm.addEventListener('submit', (e) => {
             contactForm.reset();
         }, 2000);
     }, 1500);
-});
+    });
+}
 
 // Scroll animations
 const observerOptions = {
@@ -682,3 +698,304 @@ function editDiagnosis(diagnosisId) {
     // In a real implementation, this would open an editing interface
     alert('Opening diagnosis editor... (This would allow doctors to modify codes)');
 }
+
+// Vision Analysis functionality
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Vision analysis script loaded');
+    
+    const imageUploadArea = document.getElementById('imageUploadArea');
+    const imageFile = document.getElementById('imageFile');
+    const selectFileBtn = document.getElementById('selectFileBtn');
+    const analyzeImageBtn = document.getElementById('analyzeImageBtn');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const imageName = document.getElementById('imageName');
+    const imageSize = document.getElementById('imageSize');
+    const visionResults = document.getElementById('visionResults');
+
+    console.log('Elements found:', {
+        imageUploadArea: !!imageUploadArea,
+        imageFile: !!imageFile,
+        selectFileBtn: !!selectFileBtn,
+        analyzeImageBtn: !!analyzeImageBtn
+    });
+
+    // File upload handling
+    if (imageUploadArea) {
+        imageUploadArea.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Upload area clicked, triggering file input');
+            if (imageFile) {
+                imageFile.click();
+            } else {
+                console.error('File input not found');
+            }
+        });
+    }
+    
+    // Select file button
+    if (selectFileBtn) {
+        selectFileBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Select file button clicked');
+            if (imageFile) {
+                imageFile.click();
+            } else {
+                console.error('File input not found');
+            }
+        });
+    }
+    
+    if (imageUploadArea) {
+        imageUploadArea.addEventListener('dragover', handleDragOver);
+        imageUploadArea.addEventListener('drop', handleDrop);
+    }
+    
+    if (imageFile) {
+        imageFile.addEventListener('change', handleFileSelect);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        imageUploadArea.classList.add('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        imageUploadArea.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            handleFile(file);
+        }
+    }
+
+    function handleFile(file) {
+        console.log('File selected:', file.name, file.type, file.size);
+        
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file');
+            return;
+        }
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            imageName.textContent = file.name;
+            imageSize.textContent = formatFileSize(file.size);
+            imagePreview.style.display = 'block';
+            
+            // Enable the analyze button
+            if (analyzeImageBtn) {
+                analyzeImageBtn.disabled = false;
+                console.log('Analyze button enabled');
+            }
+            console.log('File preview loaded successfully');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Analyze image
+    if (analyzeImageBtn) {
+        analyzeImageBtn.addEventListener('click', analyzeImage);
+    }
+
+    async function analyzeImage() {
+        console.log('Analyze image clicked');
+        const file = imageFile.files[0];
+        const imageType = document.getElementById('imageType').value;
+        
+        console.log('File:', file);
+        console.log('Image type:', imageType);
+        
+        if (!file) {
+            alert('Please select an image first');
+            return;
+        }
+
+        showVisionLoading();
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('image_type', imageType);
+            formData.append('doctor_id', 'demo-doctor');
+
+            console.log('Sending request to vision API...');
+            const response = await fetch('https://sih-2025-xi-one.vercel.app/vision/', {
+                method: 'POST',
+                body: formData
+            });
+
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Response data:', data);
+            displayVisionResults(data);
+        } catch (error) {
+            console.error('Error in analyzeImage:', error);
+            showVisionError(`Image analysis failed: ${error.message}`);
+        }
+    }
+
+    function showVisionLoading() {
+        visionResults.innerHTML = `
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>AI is digitizing your medical report...</p>
+            </div>
+        `;
+    }
+
+    function showVisionError(message) {
+        visionResults.innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>${message}</p>
+            </div>
+        `;
+    }
+
+    function displayVisionResults(data) {
+        if (data.error) {
+            showVisionError(data.error);
+            return;
+        }
+
+        const medicalInfo = data.medical_info;
+        const ayushCodes = data.ayush_codes || [];
+        const icdCodes = data.icd_codes || [];
+
+        let html = `
+            <div class="vision-analysis">
+                <div class="analysis-header">
+                    <h4><i class="fas fa-file-medical"></i> AI Report Digitization Results</h4>
+                    <div class="confidence-badge">
+                        <span class="confidence-label">Confidence:</span>
+                        <span class="confidence-value">${Math.round(data.confidence * 100)}%</span>
+                    </div>
+                </div>
+                
+                <div class="image-analysis-details">
+                    <div class="detail-item">
+                        <strong>Report Type:</strong> ${medicalInfo.image_type}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Quality:</strong> ${medicalInfo.quality}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Urgency:</strong> ${medicalInfo.urgency}
+                    </div>
+                </div>
+        `;
+
+        if (medicalInfo.findings && medicalInfo.findings.length > 0) {
+            html += `
+                <div class="findings-section">
+                    <h5><i class="fas fa-search"></i> Primary Findings</h5>
+                    <ul class="findings-list">
+                        ${medicalInfo.findings.map(finding => `<li>${finding}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        if (medicalInfo.abnormalities && medicalInfo.abnormalities.length > 0) {
+            html += `
+                <div class="abnormalities-section">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Abnormalities</h5>
+                    <ul class="abnormalities-list">
+                        ${medicalInfo.abnormalities.map(abnormality => `<li>${abnormality}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        if (ayushCodes.length > 0) {
+            html += `
+                <div class="matches-section">
+                    <h5><i class="fas fa-leaf"></i> AYUSH (Traditional Medicine) Codes</h5>
+                    <div class="matches-grid">
+                        ${ayushCodes.map(code => `
+                            <div class="match-card ayush">
+                                <div class="match-code">${code.namaste_code}</div>
+                                <div class="match-display">${code.display}</div>
+                                <div class="match-confidence">${Math.round(code.confidence * 100)}% confidence</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        if (icdCodes.length > 0) {
+            html += `
+                <div class="matches-section">
+                    <h5><i class="fas fa-stethoscope"></i> ICD-11 (Biomedical) Codes</h5>
+                    <div class="matches-grid">
+                        ${icdCodes.map(code => `
+                            <div class="match-card biomedical">
+                                <div class="match-code">${code.icd_code}</div>
+                                <div class="match-display">${code.display}</div>
+                                <div class="match-confidence">${Math.round(code.confidence * 100)}% confidence</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        if (data.fhir_bundle) {
+            html += `
+                <div class="fhir-section">
+                    <h5><i class="fas fa-code"></i> FHIR R4 Bundle</h5>
+                    <div class="code-preview">
+                        <pre><code>${JSON.stringify(data.fhir_bundle, null, 2)}</code></pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        html += `
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="confirmImageAnalysis('${data.analysis_id}')">
+                        <i class="fas fa-check"></i> Confirm Digitization
+                    </button>
+                    <button class="btn btn-outline" onclick="downloadReport('${data.analysis_id}')">
+                        <i class="fas fa-download"></i> Download Digitized Report
+                    </button>
+                </div>
+            </div>
+        `;
+
+        visionResults.innerHTML = html;
+    }
+
+    function confirmImageAnalysis(analysisId) {
+        alert('Report digitization confirmed! (This would save to the EHR system)');
+    }
+
+    function downloadReport(analysisId) {
+        alert('Downloading digitized report... (This would generate a PDF report)');
+    }
+});
+
